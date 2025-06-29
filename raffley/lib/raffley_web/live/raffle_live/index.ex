@@ -12,6 +12,17 @@ defmodule RaffleyWeb.RaffleLive.Index do
   def render(assigns) do
     ~H"""
     <div class="raffle-index">
+      <.banner :if={false}>
+        <.icon name="hero-sparkles-solid" /> Mystery Raffle Coming Soon!
+        <!-- named slot below -->
+        <:details :let={emoji}>
+          To be revealed tomorrow <%= emoji %>
+        </:details>
+
+        <:details>
+          Any guesses?
+        </:details>
+      </.banner>
       <div class="raffles">
         <.raffle_card :for={raffle <- @raffles} raffle={raffle} />
       </div>
@@ -26,17 +37,19 @@ defmodule RaffleyWeb.RaffleLive.Index do
     # this is a component that renders another component
     # yes this is doable
     ~H"""
-    <div class="card">
-      <img src={@raffle.image_path} />
-      <h2>{@raffle.prize}</h2>
+    <.link navigate={~p"/raffles/#{@raffle.id}"}>
+      <div class="card">
+        <img src={@raffle.image_path} />
+        <h2>{@raffle.prize}</h2>
 
-      <div class="details">
-        <div class="price">
-          ${@raffle.ticket_price} / ticket
+        <div class="details">
+          <div class="price">
+            ${@raffle.ticket_price} / ticket
+          </div>
+          <.badge status={@raffle.status} />
         </div>
-        <.badge status={@raffle.status} />
       </div>
-    </div>
+    </.link>
     """
   end
 end
