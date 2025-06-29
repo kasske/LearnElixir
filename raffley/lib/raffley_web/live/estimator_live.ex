@@ -2,6 +2,11 @@ defmodule RaffleyWeb.EstimatorLive do
   use RaffleyWeb, :live_view
 
   def mount(_params, _session, socket) do
+
+    if connected?(socket) do
+      Process.send_after(self(), :tick, 2000)
+    end
+
     socket = assign(socket, tickets: 0, price: 3)
 
     IO.inspect(socket)
@@ -51,5 +56,12 @@ defmodule RaffleyWeb.EstimatorLive do
     socket = assign(socket, :price, String.to_integer(price))
 
     {:noreply, socket}
+  end
+
+  def handle_info(:tick, socket) do
+    # Processes are handled with handle_info to handle the messagge
+    # later we use phoenix PUBsub
+    Process.send_after(self(), :tick, 2000)
+    {:noreply, update(socket, :tickets, &(&1 + 10))}
   end
 end
