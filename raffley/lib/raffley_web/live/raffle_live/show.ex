@@ -12,7 +12,7 @@ defmodule RaffleyWeb.RaffleLive.Show do
     # we can decide state either on mount or on handle params
     # handle params has access to url
 
-    raffle = Raffles.get_raffle(id)
+    raffle = Raffles.get_raffle!(id)
 
     socket =
       socket

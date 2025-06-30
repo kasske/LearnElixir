@@ -31,7 +31,7 @@ defmodule RaffleyWeb.RaffleLive.Index do
   end
 
   # those declarations are for a function right after this
-  attr :raffle, Raffley.Raffle, required: true
+  attr :raffle, Raffley.Raffles.Raffle, required: true
 
   def raffle_card(assigns) do
     # this is a component that renders another component
