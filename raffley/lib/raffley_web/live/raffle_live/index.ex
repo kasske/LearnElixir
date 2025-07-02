@@ -5,11 +5,6 @@ defmodule RaffleyWeb.RaffleLive.Index do
   import RaffleyWeb.CustomComponents
 
   def mount(_params, _session, socket) do
-    socket =
-      socket
-      |> stream(:raffles, Raffles.list_raffles())
-      |> assign(:form, to_form(%{}))
-
     # checking the stream after render to see that items are removed
     # IO.inspect(socket.assigns.streams.raffles, label: "MOUNT")
 
@@ -23,11 +18,17 @@ defmodule RaffleyWeb.RaffleLive.Index do
     {:ok, socket}
   end
 
+  def handle_params(params, _uri, socket) do
+    socket =
+      socket
+      |> stream(:raffles, Raffles.filter_raffles(params), reset: true)
+      |> assign(:form, to_form(params))
+
+    {:noreply, socket}
+  end
+
   def render(assigns) do
     ~H"""
-    <pre>
-      <%= inspect(@form, pretty: true) %>
-    </pre>
     <div class="raffle-index">
       <.banner :if={false}>
         <.icon name="hero-sparkles-solid" />
@@ -53,8 +54,14 @@ defmodule RaffleyWeb.RaffleLive.Index do
 
   def filter_form(assigns) do
     ~H"""
-    <.form for={@form}>
-      <.input field={@form[:q]} type="search" placeholder="Search" autocomplete="off" />
+    <.form for={@form} id="filter-form" phx-change="filter">
+      <.input
+        field={@form[:q]}
+        type="search"
+        placeholder="Search"
+        autocomplete="off"
+        phx-debounce="500"
+      />
       <.input
         field={@form[:status]}
         type="select"
@@ -65,8 +72,14 @@ defmodule RaffleyWeb.RaffleLive.Index do
         field={@form[:sort_by]}
         type="select"
         prompt="Sort by"
-        options={[:prize, :ticket_price]}
+        options={[
+          Prize: "prize",
+          "Price: High to Low": "ticket_price_desc",
+          "Price: Low to High": "ticket_price_asc"
+        ]}
       />
+
+      <.link patch={~p"/raffles"}>Reset</.link>
     </.form>
     """
   end
@@ -93,5 +106,16 @@ defmodule RaffleyWeb.RaffleLive.Index do
       </div>
     </.link>
     """
+  end
+
+  def handle_event("filter", params, socket) do
+    params =
+      params
+      |> Map.take(~w(q status sort_by))
+      |> Map.reject(fn {_key, value} -> value == "" end)
+
+    socket = push_patch(socket, to: ~p"/raffles?#{params}")
+
+    {:noreply, socket}
   end
 end
