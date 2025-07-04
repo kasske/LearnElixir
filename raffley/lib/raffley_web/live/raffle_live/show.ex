@@ -62,7 +62,7 @@ defmodule RaffleyWeb.RaffleLive.Show do
     ~H"""
     <section>
       <h4>Featured Raffles</h4>
-
+      
     <!--
         built in component for async result
         in the :let we get the result of the async operation
@@ -78,7 +78,7 @@ defmodule RaffleyWeb.RaffleLive.Show do
             <div class="spinner"></div>
           </div>
         </:loading>
-
+        
     <!--
           failed slot is called when the async operation fails,
           in the let we pattern match error tuple if we need to show the reason
@@ -88,7 +88,7 @@ defmodule RaffleyWeb.RaffleLive.Show do
             Yikes {reason}
           </div>
         </:failed>
-
+        
     <!-- here we reference the result from the let keyword on parent -->
         <ul class="raffles">
           <li :for={raffle <- result}>
