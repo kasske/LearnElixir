@@ -2,7 +2,6 @@ defmodule RaffleyWeb.EstimatorLive do
   use RaffleyWeb, :live_view
 
   def mount(_params, _session, socket) do
-
     if connected?(socket) do
       Process.send_after(self(), :tick, 2000)
     end

@@ -18,7 +18,10 @@ defmodule RaffleyWeb.RaffleLive.Show do
       socket
       |> assign(:raffle, raffle)
       |> assign(:page_title, raffle.prize)
-      |> assign(:featured_raffles, Raffles.featured_raffles(raffle))
+      # |> assign(:featured_raffles, Raffles.featured_raffles(raffle))
+      |> assign_async(:featured_raffles, fn ->
+        {:ok, %{:featured_raffles => Raffles.featured_raffles(raffle)}}
+      end)
 
     {:noreply, socket}
   end
@@ -60,14 +63,42 @@ defmodule RaffleyWeb.RaffleLive.Show do
     <section>
       <h4>Featured Raffles</h4>
 
-      <ul class="raffles">
-        <li :for={raffle <- @raffles}>
-          <.link navigate={~p"/raffles/#{raffle.id}"}>
-            <img src={raffle.image_path} alt={raffle.prize} />
-            {raffle.prize}
-          </.link>
-        </li>
-      </ul>
+    <!--
+        built in component for async result
+        in the :let we get the result of the async operation
+
+        it uses an Elixir task to spawn a separate process to fetch data
+        so our liveview shows, even if this fails for some reason
+
+        if we go outside of the page, it automatically stops so no background work is done unnecessarily
+      -->
+      <.async_result :let={result} assign={@raffles}>
+        <:loading>
+          <div class="loading">
+            <div class="spinner"></div>
+          </div>
+        </:loading>
+
+    <!--
+          failed slot is called when the async operation fails,
+          in the let we pattern match error tuple if we need to show the reason
+        -->
+        <:failed :let={{:error, reason}}>
+          <div class="failed">
+            Yikes {reason}
+          </div>
+        </:failed>
+
+    <!-- here we reference the result from the let keyword on parent -->
+        <ul class="raffles">
+          <li :for={raffle <- result}>
+            <.link navigate={~p"/raffles/#{raffle.id}"}>
+              <img src={raffle.image_path} alt={raffle.prize} />
+              {raffle.prize}
+            </.link>
+          </li>
+        </ul>
+      </.async_result>
     </section>
     """
   end

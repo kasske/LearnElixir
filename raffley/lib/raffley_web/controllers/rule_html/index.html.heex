@@ -1,18 +1,17 @@
 <div class="rules">
-    <h1 class="text-3xl">The Rules</h1>
+  <h1 class="text-3xl">The Rules</h1>
+  <!-- <%= assigns.emojis %> -->
+  <p>
+    {@emojis}
+  </p>
 
-    <!-- <%= assigns.emojis %> -->
-    <p>
-    <%= @emojis %>
-    </p>
-
-    <ol>
-        <%= for rule <- @rules do %>
-        <li>
-            <a href={~p"/rules/#{rule.id}"}>
-                <%= rule.text %>
-            </a>
-        </li>
-        <% end %>
-    </ol>
+  <ol>
+    <%= for rule <- @rules do %>
+      <li>
+        <a href={~p"/rules/#{rule.id}"}>
+          {rule.text}
+        </a>
+      </li>
+    <% end %>
+  </ol>
 </div>
