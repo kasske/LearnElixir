@@ -32,6 +32,7 @@ defmodule Raffley.MixProject do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
+      {:bcrypt_elixir, "~> 3.0"},
       {:phoenix, "~> 1.7.21"},
       # {:phoenix, github: "phoenixframework/phoenix", ref: "bd589f1", override: true}, used to generate charities mix phx.gen.live
       {:phoenix_ecto, "~> 4.5"},

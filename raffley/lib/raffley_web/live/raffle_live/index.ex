@@ -5,7 +5,6 @@ defmodule RaffleyWeb.RaffleLive.Index do
   alias Raffley.Charities
   import RaffleyWeb.CustomComponents
 
-
   def mount(_params, _session, socket) do
     # checking the stream after render to see that items are removed
     # IO.inspect(socket.assigns.streams.raffles, label: "MOUNT")
