@@ -60,6 +60,7 @@ defmodule Raffley.Tickets do
       {:ok, ticket} ->
         Raffles.broadcast(raffle.id, {:ticket_created, ticket})
         {:ok, ticket}
+
       {:error, _} = error ->
         error
     end

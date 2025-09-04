@@ -4,6 +4,7 @@ defmodule RaffleyWeb.RaffleLive.Show do
   alias Raffley.Raffles
   alias Raffley.Tickets
   alias Raffley.Tickets.Ticket
+  alias RaffleyWeb.Presence
   import RaffleyWeb.CustomComponents
 
   on_mount {RaffleyWeb.UserAuth, :mount_current_user}
@@ -17,10 +18,19 @@ defmodule RaffleyWeb.RaffleLive.Show do
   end
 
   def handle_params(%{"id" => id}, _uri, socket) do
+    %{current_user: current_user} = socket.assigns
 
     if connected?(socket) do
       Raffles.subscribe(id)
+
+      if current_user do
+        Presence.track_user(id, current_user)
+
+        Presence.subscribe(id)
+      end
     end
+
+    presences = Presence.list_users(id)
 
     # we can decide state either on mount or on handle params
     # handle params has access to url
@@ -33,6 +43,7 @@ defmodule RaffleyWeb.RaffleLive.Show do
       socket
       |> assign(:raffle, raffle)
       |> stream(:tickets, tickets)
+      |> stream(:presences, presences)
       |> assign(:ticket_count, Enum.count(tickets))
       |> assign(:ticket_sum, Enum.sum(Enum.map(tickets, & &1.price)))
       |> assign(:page_title, raffle.prize)
@@ -47,13 +58,12 @@ defmodule RaffleyWeb.RaffleLive.Show do
   def render(assigns) do
     ~H"""
     <div class="raffle-show">
-    <.banner :if={@raffle.winning_ticket}>
-      <.icon name="hero-sparkles-solid" />
-      Winner: #{@raffle.winning_ticket.id} Wins!
-      <:details>
-        {@raffle.winning_ticket.comment}
-      </:details>
-    </.banner>
+      <.banner :if={@raffle.winning_ticket}>
+        <.icon name="hero-sparkles-solid" /> Winner: #{@raffle.winning_ticket.id} Wins!
+        <:details>
+          {@raffle.winning_ticket.comment}
+        </:details>
+      </.banner>
       <div class="raffle">
         <img src={@raffle.image_path} alt={@raffle.prize} />
 
@@ -93,18 +103,31 @@ defmodule RaffleyWeb.RaffleLive.Show do
           </div>
 
           <div id="tickets" phx-update="stream">
-            <.ticket :for={{dom_id, ticket} <- @streams.tickets}
-              id={dom_id}
-              ticket={ticket}
-            />
+            <.ticket :for={{dom_id, ticket} <- @streams.tickets} id={dom_id} ticket={ticket} />
           </div>
         </div>
 
         <div class="right">
           <.featured_raffles raffles={@featured_raffles} />
+
+          <.raffle_watchers :if={@current_user} presences={@streams.presences} />
         </div>
       </div>
     </div>
+    """
+  end
+
+  def raffle_watchers(assigns) do
+    ~H"""
+    <section>
+      <h4>Who's here?</h4>
+      <ul class="presences" id="raffle-watchers" phx-update="stream">
+        <li :for={{dom_id, %{id: username, metas: metas}} <- @presences} id={dom_id}>
+          <.icon name="hero-user-circle-solid" class="h-5 w-5" />
+          {username} ({length(metas)})
+        </li>
+      </ul>
+    </section>
     """
   end
 
@@ -218,5 +241,18 @@ defmodule RaffleyWeb.RaffleLive.Show do
 
   def handle_info({:raffle_updated, raffle}, socket) do
     {:noreply, assign(socket, :raffle, raffle)}
+  end
+
+  def handle_info({:user_joined, presence}, socket) do
+    socket = stream_insert(socket, :presences, presence)
+    {:noreply, socket}
+  end
+
+  def handle_info({:user_left, presence}, socket) do
+    if presence.metas == [] do
+      {:noreply, stream_delete(socket, :presences, presence)}
+    else
+      {:noreply, stream_insert(socket, :presences, presence)}
+    end
   end
 end

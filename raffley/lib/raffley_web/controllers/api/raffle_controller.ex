@@ -22,6 +22,7 @@ defmodule RaffleyWeb.Api.RaffleController do
         |> put_status(:created)
         |> put_resp_header("location", ~p"/api/raffles/#{raffle.id}")
         |> render(:show, raffle: raffle)
+
       {:error, changeset} ->
         conn
         |> put_status(:unprocessable_entity)

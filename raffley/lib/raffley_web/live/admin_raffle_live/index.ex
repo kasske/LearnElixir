@@ -41,9 +41,12 @@ defmodule RaffleyWeb.AdminRaffleLive.Index do
       <.table
         id="raffles"
         rows={@streams.raffles}
-        row_click={fn {_, raffle} ->
-          JS.navigate(~p"/raffles/#{raffle}")
-        end}>
+        row_click={
+          fn {_, raffle} ->
+            JS.navigate(~p"/raffles/#{raffle}")
+          end
+        }
+      >
         <:col :let={{_dom_id, raffle}} label="Prize">
           <.link navigate={~p"/raffles/#{raffle.id}"}>
             {raffle.prize}
@@ -68,12 +71,16 @@ defmodule RaffleyWeb.AdminRaffleLive.Index do
 
         <:action :let={{dom_id, raffle}}>
           <!-- optimistic ui update (optimistic delete) -->
-          <.link phx-click={delete_and_hide(dom_id, raffle)} data-confirm="Are you sure?" class="button">
+          <.link
+            phx-click={delete_and_hide(dom_id, raffle)}
+            data-confirm="Are you sure?"
+            class="button"
+          >
             Delete
           </.link>
         </:action>
 
-        <:action :let={{dom_id, raffle}}>
+        <:action :let={{_dom_id, raffle}}>
           <!-- optimistic ui update (optimistic delete) -->
           <.link phx-click="draw-winner" phx-value-id={raffle.id}>
             Draw Winner
@@ -102,7 +109,9 @@ defmodule RaffleyWeb.AdminRaffleLive.Index do
           socket
           |> put_flash(:info, "Winner drawn successfully")
           |> stream_insert(:raffles, raffle)
+
         {:noreply, socket}
+
       {:error, error} ->
         {:noreply, put_flash(socket, :error, error)}
     end

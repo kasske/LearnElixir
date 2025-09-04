@@ -18,7 +18,9 @@ defmodule Raffley.Tickets.Ticket do
     |> cast(attrs, [:price, :comment])
     |> validate_required([:price])
     |> validate_length(:comment, max: 100)
-    |> assoc_constraint(:raffle) #ensures that the raffle exists and is valid
-    |> assoc_constraint(:user) #ensures that the user exists and is valid
+    # ensures that the raffle exists and is valid
+    |> assoc_constraint(:raffle)
+    # ensures that the user exists and is valid
+    |> assoc_constraint(:user)
   end
 end

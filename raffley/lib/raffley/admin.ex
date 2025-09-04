@@ -34,6 +34,7 @@ defmodule Raffley.Admin do
         raffle = Repo.preload(raffle, [:charity, :winning_ticket])
         Raffles.broadcast(raffle.id, {:raffle_updated, raffle})
         {:ok, raffle}
+
       {:error, _} = error ->
         error
     end
@@ -45,6 +46,7 @@ defmodule Raffley.Admin do
     case raffle.tickets do
       [] ->
         {:error, "No tickets to draw a winner"}
+
       tickets ->
         winner = Enum.random(tickets)
 

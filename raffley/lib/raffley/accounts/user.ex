@@ -51,7 +51,8 @@ defmodule Raffley.Accounts.User do
     changeset
     |> validate_required([:username])
     |> validate_length(:username, min: 3, max: 20)
-    |> unsafe_validate_unique(:username, Raffley.Repo) #use it with conjuction with unique_constraint
+    # use it with conjuction with unique_constraint
+    |> unsafe_validate_unique(:username, Raffley.Repo)
     |> unique_constraint(:username)
   end
 

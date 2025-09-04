@@ -10,6 +10,7 @@ defmodule RaffleyWeb.AdminRaffleLive.Form do
       socket
       |> assign(:charity_options, Charities.charity_names_and_ids())
       |> apply_action(socket.assigns.live_action, params)
+
     {:ok, socket}
   end
 

@@ -45,7 +45,10 @@ defmodule RaffleyWeb.Router do
     pipe_through [:browser, :require_authenticated_user, :require_admin]
 
     live_session :admin,
-      on_mount: [{RaffleyWeb.UserAuth, :ensure_authenticated}, {RaffleyWeb.UserAuth, :ensure_admin}] do
+      on_mount: [
+        {RaffleyWeb.UserAuth, :ensure_authenticated},
+        {RaffleyWeb.UserAuth, :ensure_admin}
+      ] do
       live "/admin/raffles", AdminRaffleLive.Index
       live "/admin/raffles/new", AdminRaffleLive.Form, :new
       live "/admin/raffles/:id/edit", AdminRaffleLive.Form, :edit
@@ -55,7 +58,6 @@ defmodule RaffleyWeb.Router do
       live "/charities/:id", CharityLive.Show, :show
       live "/charities/:id/edit", CharityLive.Form, :edit
     end
-
   end
 
   # Other scopes may use custom stacks.

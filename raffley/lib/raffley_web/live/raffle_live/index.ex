@@ -73,12 +73,7 @@ defmodule RaffleyWeb.RaffleLive.Index do
         options={[:upcoming, :open, :closed]}
       />
 
-      <.input
-        field={@form[:charity]}
-        type="select"
-        prompt="Charity"
-        options={@charity_options}
-      />
+      <.input field={@form[:charity]} type="select" prompt="Charity" options={@charity_options} />
 
       <.input
         field={@form[:sort_by]}

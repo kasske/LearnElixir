@@ -44,8 +44,8 @@ defmodule Raffley.Charities do
   def charity_names_and_ids do
     query =
       from c in Charity,
-      order_by: :name,
-      select: {c.name, c.id}
+        order_by: :name,
+        select: {c.name, c.id}
 
     Repo.all(query)
   end
@@ -53,8 +53,8 @@ defmodule Raffley.Charities do
   def charity_names_and_slugs do
     query =
       from c in Charity,
-      order_by: :name,
-      select: {c.name, c.slug}
+        order_by: :name,
+        select: {c.name, c.slug}
 
     Repo.all(query)
   end
