@@ -31,12 +31,29 @@ defmodule Raffley.Admin do
     |> Repo.update()
     |> case do
       {:ok, raffle} ->
-        raffle = Repo.preload(raffle, :charity)
+        raffle = Repo.preload(raffle, [:charity, :winning_ticket])
         Raffles.broadcast(raffle.id, {:raffle_updated, raffle})
         {:ok, raffle}
       {:error, _} = error ->
         error
     end
+  end
+
+  def draw_winner(%Raffle{status: :closed} = raffle) do
+    raffle = Repo.preload(raffle, :tickets)
+
+    case raffle.tickets do
+      [] ->
+        {:error, "No tickets to draw a winner"}
+      tickets ->
+        winner = Enum.random(tickets)
+
+        {:ok, _raffle} = update_raffle(raffle, %{winning_ticket_id: winner.id})
+    end
+  end
+
+  def draw_winner(%Raffle{}) do
+    {:error, "Raffle must be closed to draw a winner"}
   end
 
   def delete_raffle(%Raffle{} = raffle) do
